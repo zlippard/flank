@@ -1,17 +1,20 @@
 package ftl.config
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.type.TypeReference
 import ftl.ios.IosCatalog
 import ftl.ios.Xctestrun
 import ftl.util.Utils.fatalError
 
 class IosConfig(
+        @field:JsonProperty("test")
         val xctestrunZip: String = "",
+        @field:JsonProperty("xctestrun-file")
         val xctestrunFile: String = "",
-
         rootGcsBucket: String,
         disablePerformanceMetrics: Boolean = true,
         disableVideoRecording: Boolean = false,
-        testTimeoutMinutes: Long = 60,
+        timeout: Long = 60,
         testShards: Int = 1,
         testRuns: Int = 1,
         waitForResults: Boolean = true,
@@ -24,7 +27,7 @@ class IosConfig(
         rootGcsBucket,
         disablePerformanceMetrics,
         disableVideoRecording,
-        testTimeoutMinutes,
+        timeout,
         testShards,
         testRuns,
         waitForResults,
@@ -57,20 +60,21 @@ class IosConfig(
 
     companion object {
         fun load(yamlPath: String): IosConfig {
-            return YamlConfig.load(yamlPath, IosConfig::class.java)
+            val typeRef = object : TypeReference<HashMap<String, IosConfig>>() {}
+            return YamlConfig.load(yamlPath, typeRef).map { it.value }[0]
         }
     }
 
     override fun toString(): String {
         return """IosConfig
-  projectId: '$projectId'
+  project: '$projectId'
   xctestrunZip: '$xctestrunZip',
   xctestrunFile: '$xctestrunFile',
   rootGcsBucket: '$rootGcsBucket',
-  disableVideoRecording: $disableVideoRecording,
+  recordVideo: $recordVideo,
   testTimeoutMinutes: $testTimeoutMinutes,
   testRuns: $testRuns,
-  waitForResults: $waitForResults,
+  async: $waitForResults,
   limitBreak: $limitBreak,
   devices: $devices
             """

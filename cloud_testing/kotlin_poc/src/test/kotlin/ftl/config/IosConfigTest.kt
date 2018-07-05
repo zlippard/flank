@@ -39,7 +39,7 @@ class IosConfigTest {
         assert(config.rootGcsBucket, "tmp_bucket_2")
 
         assert(config.disablePerformanceMetrics, true)
-        assert(config.disableVideoRecording, false)
+        assert(config.recordVideo, true)
         assert(config.testTimeoutMinutes, 60L)
 
         assert(config.testShards, 1)

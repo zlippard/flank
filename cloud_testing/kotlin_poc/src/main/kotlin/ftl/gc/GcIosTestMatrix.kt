@@ -38,7 +38,7 @@ object GcIosTestMatrix {
         val testTimeoutSeconds = TimeUnit.MINUTES.toSeconds(config.testTimeoutMinutes)
         val testSpec = TestSpecification()
                 .setDisablePerformanceMetrics(config.disablePerformanceMetrics)
-                .setDisableVideoRecording(config.disableVideoRecording)
+                .setDisableVideoRecording(config.recordVideo)
                 .setTestTimeout("${testTimeoutSeconds}s")
                 .setIosTestSetup(iOSTestSetup)
                 .setIosXcTest(iOSXCTest)

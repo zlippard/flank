@@ -29,7 +29,7 @@ class IosRunCommand : Runnable {
     }
 
     @Option(names = ["-c", "--config"], description = ["YAML config file path"])
-    var configPath: String = "./flank.yml"
+    var configPath: String = "./flank.ios.yml"
 
     @Option(names = ["-s", "--shards"], description = ["Amount of shards to use"])
     var shards: Int = -1

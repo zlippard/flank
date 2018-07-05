@@ -70,7 +70,7 @@ class AndroidConfigTest {
         assert(config.autoGoogleLogin, true)
         assert(config.useOrchestrator, true)
         assert(config.disablePerformanceMetrics, true)
-        assert(config.disableVideoRecording, false)
+        assert(config.recordVideo, true)
         assert(config.testTimeoutMinutes, 60L)
 
         assert(config.testShards, 1)

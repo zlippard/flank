@@ -1,18 +1,25 @@
 package ftl.config
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.type.TypeReference
 import com.linkedin.dex.parser.DexParser
 import ftl.android.*
 import ftl.gc.GcStorage
 import kotlinx.coroutines.experimental.runBlocking
 
 class AndroidConfig(
+        @field:JsonProperty("app")
         val appApk: String = "",
+        @field:JsonProperty("test")
         val testApk: String = "",
+        @field:JsonProperty("auto-google-login")
         val autoGoogleLogin: Boolean = true,
+        @field:JsonProperty("use-orchestrator")
         val useOrchestrator: Boolean = true,
+        @field:JsonProperty("environment-variables")
         val environmentVariables: Map<String, String> = mapOf(),
+        @field:JsonProperty("directories-to-pull")
         val directoriesToPull: List<String> = listOf(),
-
         rootGcsBucket: String,
         disablePerformanceMetrics: Boolean = true,
         disableVideoRecording: Boolean = false,
@@ -80,24 +87,25 @@ class AndroidConfig(
 
     companion object {
         fun load(yamlPath: String): AndroidConfig {
-            return YamlConfig.load(yamlPath, AndroidConfig::class.java)
+            val typeRef = object : TypeReference<HashMap<String, AndroidConfig>>() {}
+            return YamlConfig.load(yamlPath, typeRef).map { it.value }[0]
         }
     }
 
     override fun toString(): String {
         return """AndroidConfig
-  projectId: '$projectId'
-  appApk: '$appApk',
-  testApk: '$testApk',
+  project: '$projectId'
+  app: '$appApk',
+  test: '$testApk',
   rootGcsBucket: '$rootGcsBucket',
   autoGoogleLogin: '$autoGoogleLogin',
   useOrchestrator: $useOrchestrator,
   disablePerformanceMetrics: $disablePerformanceMetrics,
-  disableVideoRecording: $disableVideoRecording,
+  recordVideo: $recordVideo,
   testTimeoutMinutes: $testTimeoutMinutes,
   testShards: $testShards,
   testRuns: $testRuns,
-  waitForResults: $waitForResults,
+  async: $waitForResults,
   testMethods: $testMethods,
   limitBreak: $limitBreak,
   devices: $devices,

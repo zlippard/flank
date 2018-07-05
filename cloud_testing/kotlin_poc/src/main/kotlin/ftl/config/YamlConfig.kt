@@ -1,5 +1,7 @@
 package ftl.config
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -21,16 +23,24 @@ import java.net.URI
 // testRuns - how many times to run the tests.
 
 open class YamlConfig(
+        @field:JsonProperty("results-bucket")
         val rootGcsBucket: String,
+        @field:JsonProperty("performance-metrics")
         val disablePerformanceMetrics: Boolean = true,
-        val disableVideoRecording: Boolean = false,
+        @field:JsonProperty("record-video")
+        val recordVideo: Boolean = false,
+        @field:JsonProperty("timeout")
         val testTimeoutMinutes: Long = 60,
         testShards: Int = 1,
         testRuns: Int = 1,
+        @field:JsonProperty("async")
         val waitForResults: Boolean = true,
+        @field:JsonProperty("test-targets")
         val testMethods: List<String> = listOf(),
         val limitBreak: Boolean = false,
+        @field:JsonProperty("project")
         val projectId: String = getDefaultProjectId(),
+        @field:JsonProperty("device")
         val devices: List<Device> = listOf(),
         var testShardChunks: Set<Set<String>> = emptySet()) {
 
@@ -122,13 +132,13 @@ open class YamlConfig(
     companion object {
         private val mapper by lazy { ObjectMapper(YAMLFactory()).registerModule(KotlinModule()) }
 
-        fun <T> load(yamlPath: String, valueType: Class<T>): T {
+        fun <T> load(yamlPath: String, valueRef: TypeReference<T>): T {
             val yamlFile = File(yamlPath).canonicalFile
             if (!yamlFile.exists()) {
                 fatalError("$yamlFile doesn't exist")
             }
 
-            return mapper.readValue(yamlFile, valueType)
+            return mapper.readValue(yamlFile, valueRef)
         }
 
         fun getDefaultProjectId(): String {
