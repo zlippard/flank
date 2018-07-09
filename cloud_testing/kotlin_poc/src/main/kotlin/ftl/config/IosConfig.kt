@@ -11,32 +11,25 @@ class IosConfig(
         val xctestrunZip: String = "",
         @field:JsonProperty("xctestrun-file")
         val xctestrunFile: String = "",
+        // The following fields are annotated in the base class, GCloudConfig
         rootGcsBucket: String,
         disablePerformanceMetrics: Boolean = true,
         disableVideoRecording: Boolean = false,
-        timeout: Long = 60,
-        testShards: Int = 1,
-        testRuns: Int = 1,
+        timeout: String = "60m",
         waitForResults: Boolean = true,
         testMethods: List<String> = listOf(),
-        limitBreak: Boolean = false,
         projectId: String = YamlConfig.getDefaultProjectId(),
-        devices: List<Device> = listOf(Device("iphone8", "11.2")),
-        testShardChunks: Set<Set<String>> = emptySet()
-) : YamlConfig(
-        rootGcsBucket,
-        disablePerformanceMetrics,
-        disableVideoRecording,
-        timeout,
-        testShards,
-        testRuns,
-        waitForResults,
-        testMethods,
-        limitBreak,
-        projectId,
-        devices,
-        testShardChunks
-) {
+        devices: List<Device> = listOf(Device("iphone8", "11.2"))
+) :
+        GCloudConfig(
+                rootGcsBucket,
+                disablePerformanceMetrics,
+                disableVideoRecording,
+                timeout,
+                waitForResults,
+                testMethods,
+                projectId,
+                devices) {
 
     init {
         if (xctestrunZip.startsWith(FtlConstants.GCS_PREFIX)) {
@@ -48,8 +41,8 @@ class IosConfig(
 
         devices.forEach { device -> assertDeviceSupported(device) }
 
-        val xctestValidTestNames = Xctestrun.findTestNames(xctestrunFile)
-        validateTestMethods(xctestValidTestNames, "xctest binary")
+        validTestNames = Xctestrun.findTestNames(xctestrunFile)
+        validateTestMethods(validTestNames, "xctest binary")
     }
 
     private fun assertDeviceSupported(device: Device) {
@@ -59,24 +52,13 @@ class IosConfig(
     }
 
     companion object {
-        fun load(yamlPath: String): IosConfig {
-            val typeRef = object : TypeReference<HashMap<String, IosConfig>>() {}
-            return YamlConfig.load(yamlPath, typeRef).map { it.value }[0]
-        }
+        fun load(yamlPath: String): YamlConfig<IosConfig> = YamlConfig.load(yamlPath, object : TypeReference<YamlConfig<IosConfig>>() {})
     }
 
-    override fun toString(): String {
-        return """IosConfig
-  project: '$projectId'
-  xctestrunZip: '$xctestrunZip',
-  xctestrunFile: '$xctestrunFile',
-  rootGcsBucket: '$rootGcsBucket',
-  recordVideo: $recordVideo,
-  testTimeoutMinutes: $testTimeoutMinutes,
-  testRuns: $testRuns,
-  async: $waitForResults,
-  limitBreak: $limitBreak,
-  devices: $devices
+    override fun toString() = """${super.toString()}
+
+        IosConfig
+            xctestrunZip: '$xctestrunZip',
+            xctestrunFile: '$xctestrunFile',
             """
-    }
 }

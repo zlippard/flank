@@ -20,32 +20,25 @@ class AndroidConfig(
         val environmentVariables: Map<String, String> = mapOf(),
         @field:JsonProperty("directories-to-pull")
         val directoriesToPull: List<String> = listOf(),
+        // The following fields are annotated in the base class, GCloudConfig
         rootGcsBucket: String,
-        disablePerformanceMetrics: Boolean = true,
-        disableVideoRecording: Boolean = false,
-        testTimeoutMinutes: Long = 60,
-        testShards: Int = 1,
-        testRuns: Int = 1,
+        disablePerformanceMetrics: Boolean = false,
+        disableVideoRecording: Boolean = true,
+        testTimeoutMinutes: String = "60m",
         waitForResults: Boolean = true,
         testMethods: List<String> = listOf(),
-        limitBreak: Boolean = false,
         projectId: String = YamlConfig.getDefaultProjectId(),
-        devices: List<Device> = listOf(Device("NexusLowRes", "23")),
-        testShardChunks: Set<Set<String>> = emptySet()
-) : YamlConfig(
-        rootGcsBucket,
-        disablePerformanceMetrics,
-        disableVideoRecording,
-        testTimeoutMinutes,
-        testShards,
-        testRuns,
-        waitForResults,
-        testMethods,
-        limitBreak,
-        projectId,
-        devices,
-        testShardChunks
-) {
+        devices: List<Device> = listOf(Device("NexusLowRes", "23"))
+) :
+        GCloudConfig(
+                rootGcsBucket,
+                disablePerformanceMetrics,
+                disableVideoRecording,
+                testTimeoutMinutes,
+                waitForResults,
+                testMethods,
+                projectId,
+                devices) {
 
     init {
         if (appApk.startsWith(FtlConstants.GCS_PREFIX)) {
@@ -70,8 +63,8 @@ class AndroidConfig(
 
         devices.forEach { device -> assertDeviceSupported(device) }
 
-        val dexValidTestNames = DexParser.findTestMethods(testLocalApk).map { "class ${it.testName}" }
-        validateTestMethods(dexValidTestNames, "Test APK")
+        validTestNames = DexParser.findTestMethods(testLocalApk).map { "class ${it.testName}" }
+        validateTestMethods(validTestNames, "Test APK")
     }
 
     private fun assertDeviceSupported(device: Device) {
@@ -86,31 +79,17 @@ class AndroidConfig(
     }
 
     companion object {
-        fun load(yamlPath: String): AndroidConfig {
-            val typeRef = object : TypeReference<HashMap<String, AndroidConfig>>() {}
-            return YamlConfig.load(yamlPath, typeRef).map { it.value }[0]
-        }
+        fun load(yamlPath: String): YamlConfig<AndroidConfig> = YamlConfig.load(yamlPath, object : TypeReference<YamlConfig<AndroidConfig>>() {})
     }
 
-    override fun toString(): String {
-        return """AndroidConfig
-  project: '$projectId'
-  app: '$appApk',
-  test: '$testApk',
-  rootGcsBucket: '$rootGcsBucket',
-  autoGoogleLogin: '$autoGoogleLogin',
-  useOrchestrator: $useOrchestrator,
-  disablePerformanceMetrics: $disablePerformanceMetrics,
-  recordVideo: $recordVideo,
-  testTimeoutMinutes: $testTimeoutMinutes,
-  testShards: $testShards,
-  testRuns: $testRuns,
-  async: $waitForResults,
-  testMethods: $testMethods,
-  limitBreak: $limitBreak,
-  devices: $devices,
-  environmentVariables: $environmentVariables,
-  directoriesToPull: $directoriesToPull
+    override fun toString() = """${super.toString()}
+
+        AndroidConfig
+            app: '$appApk',
+            test: '$testApk',
+            autoGoogleLogin: '$autoGoogleLogin',
+            useOrchestrator: $useOrchestrator,
+            environmentVariables: $environmentVariables,
+            directoriesToPull: $directoriesToPull
             """
-    }
 }

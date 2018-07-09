@@ -1,6 +1,8 @@
 package ftl.cli.firebase.test.android
 
 import ftl.config.AndroidConfig
+import ftl.config.FlankConfig
+import ftl.config.YamlConfig
 import ftl.run.TestRunner
 import kotlinx.coroutines.experimental.runBlocking
 import picocli.CommandLine.Command
@@ -21,7 +23,7 @@ class AndroidRefreshCommand : Runnable {
     override fun run() {
         runBlocking {
             val config = AndroidConfig.load(configPath)
-            TestRunner.refreshLastRun(config)
+            TestRunner.refreshLastRun(config.gCloudConfig)
         }
     }
 

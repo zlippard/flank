@@ -1,4 +1,4 @@
-flank:
+gcloud:
   app: gs://tmp_bucket_2/app-debug.apk
   test: gs://tmp_bucket_2/app-debug-androidTest.apk
   results-bucket: tmp_bucket_2
@@ -6,10 +6,7 @@ flank:
   use-orchestrator: true
   performance-metrics: true
   record-video: true
-  timeout: 60
-  testShards: 1
-  testRuns: 1
-  limitBreak: false
+  timeout: 60m
   async: true
   test-targets:
     - class com.example.app.ExampleUiTest#testPasses
@@ -27,3 +24,8 @@ flank:
     clearPackageData: true
   directories-to-pull:
     - /sdcard/screenshots
+
+flank:
+  testShards: 1
+  testRuns: 1
+  limitBreak: false

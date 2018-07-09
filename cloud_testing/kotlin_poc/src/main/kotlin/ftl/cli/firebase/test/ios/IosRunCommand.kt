@@ -21,7 +21,7 @@ Configuration is read from flank.yml
 class IosRunCommand : Runnable {
     override fun run() {
         val config = IosConfig.load(configPath)
-        if (shards > 0) config.testRuns = shards
+        if (shards > 0) config.flankConfig.testRuns = shards
         runBlocking {
             TestRunner.newRun(config)
 
